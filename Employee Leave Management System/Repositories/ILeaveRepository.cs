@@ -1,0 +1,26 @@
+﻿using Employee_Leave_Management_System.Model;
+using Employee_Leave_Management_System.Model.DTOs;
+
+namespace Employee_Leave_Management_System.Repositories;
+public interface ILeaveRepository
+{
+    public Task<IEnumerable<LeaveRequestResponseDto>> GetAllLeaveRequests();
+    
+    public Task<LeaveRequest> GetLeaveRequestById(int id);
+    
+    public Task<LeaveRequest> SubmitLeaveRequest(LeaveRequestDto leaveRequestDto);
+    
+    public Task<LeaveRequest> UpdateLeaveRequest(int id, LeaveRequestDto leaveRequestDto);
+    
+    public Task<bool> DeleteLeaveRequest(int id);
+    
+    public Task<LeaveRequest> ApproveLeaveRequest(int id);
+    
+    public Task<LeaveRequest> RejectLeaveRequest(int id, LeaveRejectDto leaveRejectDto);
+    
+    public Task<LeaveStatisticsResponseDto> GetLeavesStatsByDepartment(string department);
+
+    public Task<IEnumerable<EmployeeOnLeaveResponseDto>> GetEmployeesOnLeave();
+    
+    public Task<IEnumerable<LeaveRequestResponseDto>> GetLeaveByStatus(string status);
+}

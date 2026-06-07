@@ -1,0 +1,110 @@
+﻿using Employee_Leave_Management_System.Data;
+using Employee_Leave_Management_System.Model;
+using Employee_Leave_Management_System.Model.DTOs;
+using Microsoft.EntityFrameworkCore;
+
+namespace Employee_Leave_Management_System.Repositories;
+
+public class EmployeeRepository : IEmployeeRepository
+{
+        private readonly ApplicationDbContext _dbContext;
+
+        public EmployeeRepository(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        //GET ALL EMPLOYEE
+        public async Task<IEnumerable<Employee>> GetAllEmployees()
+        {
+            var employees = await _dbContext.Employees.Include(e => e.LeaveRequests).ToListAsync();
+            if (employees.Count == 0)
+            {
+                throw new Exception("Employee not found");
+            }
+            return employees;
+        }
+        
+        //GET EMPLOYEE BY ID
+        public async Task<Employee> GetEmployeeById(int employeeId)
+        {
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Id == employeeId);
+            return employee ?? throw new Exception("Employee not found");
+        }
+
+        // CREATE EMPLOYEE
+        public async Task<Employee> CreateEmployee(CreateEmployeeDto createEmployeeDto)
+        {
+            var employeeExist = await _dbContext.Employees.AnyAsync(e => e.Email.ToLower() == createEmployeeDto.Email.ToLower());
+            if (employeeExist)
+            {
+                throw new Exception("Employee already exists");
+            }
+            
+            var employee = new Employee()
+            {
+                FullName = createEmployeeDto.FullName,
+                Email = createEmployeeDto.Email,
+                Department = createEmployeeDto.Department,
+            };
+        
+            await _dbContext.Employees.AddAsync(employee);
+            await _dbContext.SaveChangesAsync();
+            return employee;
+        }
+       
+        // UPDATE EMPLOYEE
+        public async Task<Employee> UpdateEmployee(int id, CreateEmployeeDto createEmployeeDto)
+        {
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        
+            var employeeExist = await _dbContext.Employees.AnyAsync(e => e.Email.ToLower() == createEmployeeDto.Email.ToLower());
+            if (employeeExist)
+            {
+                throw new Exception("Employee already exists");
+            }
+        
+            if (employee != null)
+            {
+                employee.FullName = createEmployeeDto.FullName;
+                employee.Email = createEmployeeDto.Email;
+                employee.Department = createEmployeeDto.Department;
+            };
+            await _dbContext.SaveChangesAsync();
+            return employee ?? throw new Exception("Employee not found");
+        }
+
+        // DELETE EMPLOYEE
+        public async Task<string> DeleteEmployee(int id)
+        {
+            var employee = await _dbContext.Employees.FindAsync(id);
+
+            if (employee == null)
+            {
+                return "Employee not found";
+            }
+            _dbContext.Employees.Remove(employee);
+            await _dbContext.SaveChangesAsync();
+            return "Employee deleted successfully";
+        }
+
+        // GET EMPLOYEE LEAVES HISTORY
+        public async Task<IEnumerable<LeaveRequest>> GetEmployeeLeavesHistory(int id)
+        {
+            var employee = await _dbContext.Employees.FirstOrDefaultAsync(e => e.Id == id);
+            if (employee == null)
+            {
+                throw new Exception("Employee not found");
+            }
+        
+            var leaveHistory = await _dbContext.LeaveRequests
+                .Where(lr => lr.EmployeeId == id)
+                .ToListAsync();
+        
+            if (leaveHistory.Count == 0)
+            {
+                throw new Exception($"No leave history found for employee: {id}");
+            }
+            return leaveHistory;
+        }
+    }
