@@ -50,6 +50,37 @@ namespace Employee_Leave_Management_System.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("Employee_Leave_Management_System.Model.LeaveApproval", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ApproverId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateActed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LeaveRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LeaveRequestId");
+
+                    b.ToTable("LeaveApprovals");
+                });
+
             modelBuilder.Entity("Employee_Leave_Management_System.Model.LeaveRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -64,8 +95,8 @@ namespace Employee_Leave_Management_System.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("LeaveType")
                         .HasColumnType("int");
@@ -74,20 +105,29 @@ namespace Employee_Leave_Management_System.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RejectionReason")
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("LeaveRequests");
+                });
+
+            modelBuilder.Entity("Employee_Leave_Management_System.Model.LeaveApproval", b =>
+                {
+                    b.HasOne("Employee_Leave_Management_System.Model.LeaveRequest", "LeaveRequest")
+                        .WithMany("Approvals")
+                        .HasForeignKey("LeaveRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LeaveRequest");
                 });
 
             modelBuilder.Entity("Employee_Leave_Management_System.Model.LeaveRequest", b =>
@@ -104,6 +144,11 @@ namespace Employee_Leave_Management_System.Migrations
             modelBuilder.Entity("Employee_Leave_Management_System.Model.Employee", b =>
                 {
                     b.Navigation("LeaveRequests");
+                });
+
+            modelBuilder.Entity("Employee_Leave_Management_System.Model.LeaveRequest", b =>
+                {
+                    b.Navigation("Approvals");
                 });
 #pragma warning restore 612, 618
         }

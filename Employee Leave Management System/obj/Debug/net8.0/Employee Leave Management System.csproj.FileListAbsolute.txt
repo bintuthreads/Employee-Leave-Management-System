@@ -166,3 +166,7 @@ C:\Users\HP\Employee Leave Management System\Employee Leave Management System\ob
 C:\Users\HP\Employee Leave Management System\Employee Leave Management System\obj\Debug\net8.0\Employee Leave Management System.pdb
 C:\Users\HP\Employee Leave Management System\Employee Leave Management System\obj\Debug\net8.0\Employee Leave Management System.genruntimeconfig.cache
 C:\Users\HP\Employee Leave Management System\Employee Leave Management System\obj\Debug\net8.0\ref\Employee Leave Management System.dll
+C:\Users\HP\Employee Leave Management System\Employee Leave Management System\obj\Debug\net8.0\Employee Leave Management System.sourcelink.json
+C:\Users\HP\Employee Leave Management System\Employee Leave Management System\bin\Debug\net8.0\FluentValidation.dll
+C:\Users\HP\Employee Leave Management System\Employee Leave Management System\bin\Debug\net8.0\FluentValidation.AspNetCore.dll
+C:\Users\HP\Employee Leave Management System\Employee Leave Management System\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
