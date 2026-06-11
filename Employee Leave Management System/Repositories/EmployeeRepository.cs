@@ -1,64 +1,108 @@
 ﻿using Employee_Leave_Management_System.Data;
 using Employee_Leave_Management_System.Model;
+using Employee_Leave_Management_System.Model.DTOs;
+using Employee_Leave_Management_System.Model.DTOs.Requests;
+using Employee_Leave_Management_System.Model.DTOs.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace Employee_Leave_Management_System.Repositories;
 
 public class EmployeeRepository : IEmployeeRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbcontext;
 
-    public EmployeeRepository(ApplicationDbContext context)
+    public EmployeeRepository(ApplicationDbContext dbcontext)
     {
-        _context = context;
+        _dbcontext = dbcontext;
     }
 
-    public async Task<List<Employee>> GetAllEmployees()
+    public async Task<IEnumerable<EmployeeResponseDto>> GetAllEmployees()
     {
-        return await _context.Employees.ToListAsync();
+        return await _dbcontext.Employees
+            .Select(e => new EmployeeResponseDto
+            {
+                Id = e.Id,
+                FullName = e.FullName,
+                Email = e.Email,
+                Department = e.Department
+            })
+            .ToListAsync();
     }
 
-    public async Task<Employee?> GetEmployeeById(int id)
+    public async Task<EmployeeResponseDto?> GetEmployeeById(int id)
     {
-        return await _context.Employees.FindAsync(id);
+        return await _dbcontext.Employees
+            .Where(e => e.Id == id)
+            .Select(e => new EmployeeResponseDto
+            {
+                Id = e.Id,
+                FullName = e.FullName,
+                Email = e.Email,
+                Department = e.Department
+            })
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<Employee> CreateEmployee(Employee employee)
+    public async Task<string> CreateEmployee(CreateEmployeeRequestDto dto)
     {
-        await _context.Employees.AddAsync(employee);
+        var employee = new Employee
+        {
+            FullName = dto.FullName,
+            Email = dto.Email,
+            Department = dto.Department,
+            DateJoined = DateTime.UtcNow
+        };
 
-        await _context.SaveChangesAsync();
+        await _dbcontext.Employees.AddAsync(employee);
+        await _dbcontext.SaveChangesAsync();
 
-        return employee;
+        return "Employee created successfully";
     }
 
-    public async Task<Employee?> UpdateEmployee(int id, Employee employee)
+    public async Task<string> UpdateEmployee(int id, UpdateEmployeeRequestDto dto)
     {
-        var existingEmployee = await _context.Employees.FindAsync(id);
-
-        if (existingEmployee == null)
-            return null;
-
-        existingEmployee.FullName = employee.FullName;
-        existingEmployee.Email = employee.Email;
-        existingEmployee.Department = employee.Department;
-
-        await _context.SaveChangesAsync();
-
-        return existingEmployee;
-    }
-
-    public async Task<bool> DeleteEmployee(int id)
-    {
-        var employee = await _context.Employees.FindAsync(id);
+        var employee = await _dbcontext.Employees.FindAsync(id);
 
         if (employee == null)
-            return false;
+            return "Employee not found";
 
-        _context.Employees.Remove(employee);
+        employee.FullName = dto.FullName;
+        employee.Email = dto.Email;
+        employee.Department = dto.Department;
 
-        await _context.SaveChangesAsync();
+        await _dbcontext.SaveChangesAsync();
 
-        return true;
+        return "Employee updated successfully";
+    }
+
+    public async Task<string> DeleteEmployee(int id)
+    {
+        var employee = await _dbcontext.Employees.FindAsync(id);
+
+        if (employee == null)
+            return "Employee not found";
+
+        _dbcontext.Employees.Remove(employee);
+        await _dbcontext.SaveChangesAsync();
+
+        return "Employee deleted successfully";
+    }
+
+    public async Task<IEnumerable<LeaveRequestResponseDto>> GetEmployeeLeaves(int employeeId)
+    {
+        return await _dbcontext.LeaveRequests
+            .Where(l => l.EmployeeId == employeeId)
+            .Select(l => new LeaveRequestResponseDto
+            {
+                Id = l.Id,
+                EmployeeId = l.EmployeeId,
+                LeaveType = l.LeaveType,
+                StartDate = l.StartDate,
+                EndDate = l.EndDate,
+                Reason = l.Reason,
+                Status = l.Status,
+                DateCreated = l.DateCreated
+            })
+            .ToListAsync();
     }
 }

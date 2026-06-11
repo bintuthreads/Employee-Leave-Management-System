@@ -6,7 +6,7 @@ public class LeaveRequest
 
     public int EmployeeId { get; set; }
 
-    public LeaveType LeaveType { get; set; }
+    public string LeaveType { get; set; }
 
     public DateTime StartDate { get; set; }
 

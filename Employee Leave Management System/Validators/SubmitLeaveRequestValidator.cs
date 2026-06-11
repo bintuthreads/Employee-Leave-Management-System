@@ -7,14 +7,12 @@ public class SubmitLeaveRequestValidator : AbstractValidator<SubmitLeaveRequestD
 {
     public SubmitLeaveRequestValidator()
     {
-        RuleFor(x => x.EmployeeId)
-            .GreaterThan(0);
+        RuleFor(x => x.EmployeeId).GreaterThan(0);
 
-        RuleFor(x => x.Reason)
-            .NotEmpty();
+        RuleFor(x => x.Reason).NotEmpty().MaximumLength(500);
 
-        RuleFor(x => x.StartDate)
-            .LessThanOrEqualTo(x => x.EndDate)
-            .WithMessage("Start date cannot be after End date");
+        RuleFor(x => x.EndDate)
+            .GreaterThan(x => x.StartDate)
+            .WithMessage("End Date must be after Start Date");
     }
 }

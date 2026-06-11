@@ -1,16 +1,21 @@
 ﻿using Employee_Leave_Management_System.Model;
+using Employee_Leave_Management_System.Model.DTOs;
+using Employee_Leave_Management_System.Model.DTOs.Requests;
+using Employee_Leave_Management_System.Model.DTOs.Responses;
 
 namespace Employee_Leave_Management_System.Repositories;
 
 public interface IEmployeeRepository
 {
-    Task<List<Employee>> GetAllEmployees();
+    Task<IEnumerable<EmployeeResponseDto>> GetAllEmployees();
 
-    Task<Employee?> GetEmployeeById(int id);
+    Task<EmployeeResponseDto?> GetEmployeeById(int id);
 
-    Task<Employee> CreateEmployee(Employee employee);
+    Task<string> CreateEmployee(CreateEmployeeRequestDto dto);
 
-    Task<Employee?> UpdateEmployee(int id, Employee employee);
+    Task<string> UpdateEmployee(int id, UpdateEmployeeRequestDto dto);
 
-    Task<bool> DeleteEmployee(int id);
+    Task<string> DeleteEmployee(int id);
+
+    Task<IEnumerable<LeaveRequestResponseDto>> GetEmployeeLeaves(int employeeId);
 }
