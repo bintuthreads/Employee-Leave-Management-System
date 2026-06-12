@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Employee_Leave_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260609153539_Initial")]
+    [Migration("20260612204137_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -36,9 +36,8 @@ namespace Employee_Leave_Management_System.Migrations
                     b.Property<DateTime>("DateJoined")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Department")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()

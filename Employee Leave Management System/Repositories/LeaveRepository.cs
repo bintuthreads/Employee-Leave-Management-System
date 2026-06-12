@@ -37,7 +37,7 @@ public class LeaveRepository : ILeaveRepository
     //GET LEAVE BY ID
     public async Task<LeaveRequestResponseDto?> GetLeaveById(int id)
     {
-        return await _dbContext.LeaveRequests
+        var leave = await _dbContext.LeaveRequests
             .Where(l => l.Id == id)
             .Select(l => new LeaveRequestResponseDto
             {
@@ -51,6 +51,11 @@ public class LeaveRepository : ILeaveRepository
                 DateCreated = l.DateCreated
             })
             .FirstOrDefaultAsync();
+        if (leave == null)
+        {
+            return null;
+        }
+        return leave;
     }
 
     //SUBMIT LEAVE
@@ -60,6 +65,41 @@ public class LeaveRepository : ILeaveRepository
 
         if (!employeeExists)
             return "Employee does not exist";
+
+        int days = (dto.EndDate - dto.StartDate).Days + 1;
+
+        switch (dto.LeaveType)
+        {
+            case LeaveType.Annual:
+                if (days > 30)
+                    return "Annual leave cannot exceed 30 days";
+                break;
+
+            case LeaveType.Sick:
+                if (days > 14)
+                    return "Sick leave cannot exceed 14 days";
+                break;
+
+            case LeaveType.Maternity:
+                if (days > 90)
+                    return "Maternity leave cannot exceed 90 days";
+                break;
+
+            case LeaveType.Paternity:
+                if (days > 14)
+                    return "Paternity leave cannot exceed 14 days";
+                break;
+
+            case LeaveType.Unpaid:
+                if (days > 60)
+                    return "Unpaid leave cannot exceed 60 days";
+                break;
+
+            case LeaveType.Emergency:
+                if (days > 7)
+                    return "Emergency leave cannot exceed 7 days";
+                break;
+        }
 
         var overlap = await _dbContext.LeaveRequests.AnyAsync(l =>
             l.EmployeeId == dto.EmployeeId &&
@@ -85,7 +125,6 @@ public class LeaveRepository : ILeaveRepository
 
         return "Leave submitted successfully";
     }
-
     // UPDATE LEAVE
     public async Task<string> UpdateLeave(int id, SubmitLeaveRequestDto dto)
     {
@@ -183,5 +222,24 @@ public class LeaveRepository : ILeaveRepository
                 Department = l.Employee.Department
             })
             .ToListAsync();
+    }
+    
+    // Get Leave Statistics
+    public async Task<object> GetLeaveStatistics()
+    {
+        var stats = await _dbContext.LeaveRequests
+            .Include(l => l.Employee)
+            .GroupBy(l => l.Employee.Department)
+            .Select(g => new
+            {
+                Department = g.Key,
+                TotalLeaves = g.Count(),
+                Approved = g.Count(x => x.Status == "Approved"),
+                Pending = g.Count(x => x.Status == "Pending"),
+                Rejected = g.Count(x => x.Status == "Rejected")
+            })
+            .ToListAsync();
+
+        return stats;
     }
 }

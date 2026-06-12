@@ -8,7 +8,7 @@ public class LeaveRequestResponseDto
 
     public int EmployeeId { get; set; }
 
-    public string LeaveType { get; set; }
+    public LeaveType LeaveType { get; set; }
 
     public DateTime StartDate { get; set; }
 
@@ -19,6 +19,4 @@ public class LeaveRequestResponseDto
     public string Status { get; set; }
 
     public DateTime DateCreated { get; set; }
-
-    public List<LeaveApprovalResponseDto> Approvals { get; set; } = new();
 }

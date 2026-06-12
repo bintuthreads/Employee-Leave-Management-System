@@ -4,7 +4,7 @@ public class SubmitLeaveRequestDto
 {
     public int EmployeeId { get; set; }
 
-    public string LeaveType { get; set; }
+    public LeaveType LeaveType { get; set; }
 
     public DateTime StartDate { get; set; }
 

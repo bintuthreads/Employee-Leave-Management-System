@@ -16,6 +16,7 @@ public class EmployeeRepository : IEmployeeRepository
         _dbcontext = dbcontext;
     }
 
+    //GET ALL EMPLOYEES
     public async Task<IEnumerable<EmployeeResponseDto>> GetAllEmployees()
     {
         return await _dbcontext.Employees
@@ -29,6 +30,7 @@ public class EmployeeRepository : IEmployeeRepository
             .ToListAsync();
     }
 
+    //GET EMPLOYEE BY ID
     public async Task<EmployeeResponseDto?> GetEmployeeById(int id)
     {
         return await _dbcontext.Employees
@@ -41,10 +43,19 @@ public class EmployeeRepository : IEmployeeRepository
                 Department = e.Department
             })
             .FirstOrDefaultAsync();
+        
     }
 
+    //CREATE EMPLOYEE
     public async Task<string> CreateEmployee(CreateEmployeeRequestDto dto)
     {
+        var employeeExists = await _dbcontext.Employees
+            .AnyAsync(e =>
+                e.FullName == dto.FullName ||
+                e.Email == dto.Email);
+        if (employeeExists)
+            return "Employee with this name or email already exists";
+
         var employee = new Employee
         {
             FullName = dto.FullName,
@@ -59,22 +70,21 @@ public class EmployeeRepository : IEmployeeRepository
         return "Employee created successfully";
     }
 
+    // UPDATE EMPLOYEE
     public async Task<string> UpdateEmployee(int id, UpdateEmployeeRequestDto dto)
     {
         var employee = await _dbcontext.Employees.FindAsync(id);
-
         if (employee == null)
             return "Employee not found";
-
         employee.FullName = dto.FullName;
         employee.Email = dto.Email;
         employee.Department = dto.Department;
 
         await _dbcontext.SaveChangesAsync();
-
         return "Employee updated successfully";
     }
 
+    //DELETE EMPLOYEE
     public async Task<string> DeleteEmployee(int id)
     {
         var employee = await _dbcontext.Employees.FindAsync(id);
@@ -87,7 +97,8 @@ public class EmployeeRepository : IEmployeeRepository
 
         return "Employee deleted successfully";
     }
-
+    
+    //GET EMPLOYEE LEAVES
     public async Task<IEnumerable<LeaveRequestResponseDto>> GetEmployeeLeaves(int employeeId)
     {
         return await _dbcontext.LeaveRequests

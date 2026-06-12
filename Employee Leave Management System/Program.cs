@@ -5,10 +5,16 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
+using System.Text.Json.Serialization;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers
-builder.Services.AddControllers();
+// Add Controllers + Enum as String (IMPORTANT FOR SWAGGER)
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -31,7 +37,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateEmployeeRequestValida
 
 var app = builder.Build();
 
-// Swagger
+// Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -44,4 +50,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();app.Run();
+app.Run();

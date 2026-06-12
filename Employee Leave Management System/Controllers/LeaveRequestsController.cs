@@ -15,15 +15,33 @@ public class LeaveRequestsController : ControllerBase
     }
     
     //Submit Leave
-    [HttpPost]
+    [HttpPost("Submit-Leave")]
     public async Task<IActionResult> SubmitLeave(SubmitLeaveRequestDto dto)
     {
         var result = await _leaveRepository.SubmitLeave(dto);
         return Ok(result);
     }
     
+    //Update Leave
+    [HttpPut("Update-Leave/{id}")]
+    public async Task<IActionResult> UpdateLeave(int id, SubmitLeaveRequestDto dto)
+    {
+        var result = await _leaveRepository.UpdateLeave(id, dto);
+
+        return Ok(result);
+    }
+    
+    //Delete Leave
+    [HttpDelete("Delete-Leave/{id}")]
+    public async Task<IActionResult> DeleteLeave(int id)
+    {
+        var result = await _leaveRepository.DeleteLeave(id);
+
+        return Ok(result);
+    }
+    
     // Get All Leaves
-    [HttpGet]
+    [HttpGet("Get-All-Leaves")]
     public async Task<IActionResult> GetAllLeaves()
     {
         var leaves = await _leaveRepository.GetAllLeaves();
@@ -31,17 +49,15 @@ public class LeaveRequestsController : ControllerBase
     }
     
     // Get Leave By Id
-    [HttpGet("{id}")]
+    [HttpGet("Get-Leave-by-Id{id}")]
     public async Task<IActionResult> GetLeaveById(int id)
     {
         var leave = await _leaveRepository.GetLeaveById(id);
-        if (leave == null)
-            return NotFound();
         return Ok(leave);
     }
     
     //Approve Leave
-    [HttpPost("{id}/approve")]
+    [HttpPost("Approve-Leave/{id}")]
     public async Task<IActionResult> ApproveLeave(int id, LeaveActionRequestDto dto)
     {
         var result = await _leaveRepository.ApproveLeave(id, dto);
@@ -49,10 +65,34 @@ public class LeaveRequestsController : ControllerBase
     }
     
     //Reject Leave
-    [HttpPost("{id}/reject")]
+    [HttpPost("Reject-Leave/{id}")]
     public async Task<IActionResult> RejectLeave(int id, LeaveActionRequestDto dto)
     {
         var result = await _leaveRepository.RejectLeave(id, dto);
+        return Ok(result);
+    }
+    
+    //Leave Request by Status
+    [HttpGet("status/{status}")]
+    public async Task<IActionResult> GetByStatus(string status)
+    {
+        var result = await _leaveRepository.GetLeavesByStatus(status);
+        return Ok(result);
+    }
+    
+    // Get Employees Currently on Leave
+    [HttpGet("Current-Employees-On-Leave")]
+    public async Task<IActionResult> GetEmployeesCurrentlyOnLeave()
+    {
+        var result = await _leaveRepository.GetEmployeesCurrentlyOnLeave();
+        return Ok(result);
+    }
+    
+    // Get leave statistics
+    [HttpGet("Leave-Statistics")]
+    public async Task<IActionResult> GetStatistics()
+    {
+        var result = await _leaveRepository.GetLeaveStatistics();
         return Ok(result);
     }
 }

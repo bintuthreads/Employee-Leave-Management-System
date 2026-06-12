@@ -24,4 +24,6 @@ public interface ILeaveRepository
     Task<IEnumerable<LeaveRequestResponseDto>> GetLeavesByStatus(string status);
 
     Task<IEnumerable<EmployeeResponseDto>> GetEmployeesCurrentlyOnLeave();
+
+    Task<object> GetLeaveStatistics();
 }
