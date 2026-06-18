@@ -7,5 +7,6 @@ public enum LeaveType
     Maternity,
     Paternity,
     Unpaid,
-    Emergency
+    Emergency,
+    Study
 }

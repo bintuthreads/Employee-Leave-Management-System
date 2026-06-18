@@ -35,6 +35,21 @@ builder.Services.AddScoped<ILeaveRepository, LeaveRepository>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateEmployeeRequestValidator>();
 
+builder.Services.AddCors(o => o.AddPolicy("Dev",
+    p => p.WithOrigins("http://localhost:5173")
+        .AllowAnyHeader().AllowAnyMethod()));
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Swagger UI
@@ -43,6 +58,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("Dev");
 
 app.UseHttpsRedirection();
 

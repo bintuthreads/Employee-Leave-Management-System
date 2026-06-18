@@ -155,8 +155,16 @@ public class LeaveRepository : ILeaveRepository
     public async Task<string> ApproveLeave(int id, LeaveActionRequestDto dto)
     {
         var leave = await _dbContext.LeaveRequests.FindAsync(id);
-        if (leave == null) return "Leave not found";
-        leave.Status = "Approved";
+        if (leave == null)
+            return "Leave not found";
+        
+        // Check if this approver has already approved
+        var alreadyApproved = await _dbContext.LeaveApprovals
+            .AnyAsync(a => a.LeaveRequestId == id && a.ApproverId == dto.ApproverId);
+        if (alreadyApproved)
+            return "You have already approved this leave request";
+
+        // Add approval
         var approval = new LeaveApproval
         {
             LeaveRequestId = id,
@@ -167,7 +175,21 @@ public class LeaveRepository : ILeaveRepository
         };
         await _dbContext.LeaveApprovals.AddAsync(approval);
         await _dbContext.SaveChangesAsync();
-        return "Leave approved successfully";
+
+        // Count approvals for this leave
+        var approvalCount = await _dbContext.LeaveApprovals
+            .CountAsync(a => a.LeaveRequestId == id && a.Action == "Approved");
+
+        if (approvalCount == 1)
+        {
+            leave.Status = "Processing";
+        }
+        else if (approvalCount >= 2)
+        {
+            leave.Status = "Approved";
+        }
+        await _dbContext.SaveChangesAsync();
+        return $"Leave has {approvalCount} approval(s)";
     }
 
     //REJECT LEAVE
@@ -210,17 +232,15 @@ public class LeaveRepository : ILeaveRepository
     }
 
     //GET EMPLOYEES CURRENTLY ON LEAVE
-    public async Task<IEnumerable<EmployeeResponseDto>> GetEmployeesCurrentlyOnLeave()
+    public async Task<List<Employee>> GetEmployeesCurrentlyOnLeave()
     {
+        var today = DateTime.UtcNow.Date;
+
         return await _dbContext.LeaveRequests
-            .Where(l => l.Status == "Approved")
-            .Select(l => new EmployeeResponseDto
-            {
-                Id = l.Employee.Id,
-                FullName = l.Employee.FullName,
-                Email = l.Employee.Email,
-                Department = l.Employee.Department
-            })
+            .Where(l => l.Status == "Approved"
+                        && l.StartDate <= today
+                        && l.EndDate >= today)
+            .Select(l => l.Employee)
             .ToListAsync();
     }
     
