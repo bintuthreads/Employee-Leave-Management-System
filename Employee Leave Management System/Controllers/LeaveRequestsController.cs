@@ -30,7 +30,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     // GET BY ID
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetLeaveById(int id)
     {
         var leave = await _leaveRepository.GetLeaveById(id);
@@ -38,7 +38,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     // UPDATE
-    [HttpPut("{id:int}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> UpdateLeave(int id, SubmitLeaveRequestDto dto)
     {
         var result = await _leaveRepository.UpdateLeave(id, dto);
@@ -46,7 +46,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     // DELETE
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteLeave(int id)
     {
         var result = await _leaveRepository.DeleteLeave(id);
@@ -54,7 +54,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     // APPROVE
-    [HttpPost("approve/{id:int}")]
+    [HttpPost("approve/{id}")]
     public async Task<IActionResult> ApproveLeave(int id, LeaveActionRequestDto dto)
     {
         var result = await _leaveRepository.ApproveLeave(id, dto);
@@ -62,7 +62,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     // REJECT
-    [HttpPost("reject/{id:int}")]
+    [HttpPost("reject/{id}")]
     public async Task<IActionResult> RejectLeave(int id, LeaveActionRequestDto dto)
     {
         var result = await _leaveRepository.RejectLeave(id, dto);
@@ -79,9 +79,9 @@ public class LeaveRequestsController : ControllerBase
 
     // EMPLOYEES ON LEAVE
     [HttpGet("employees/on-leave")]
-    public async Task<IActionResult> GetEmployeesCurrentlyOnLeave()
+    public async Task<IActionResult> GetEmployeesCurrentlyOnLeave(string department)
     {
-        var result = await _leaveRepository.GetEmployeesCurrentlyOnLeave();
+        var result = await _leaveRepository.GetEmployeesCurrentlyOnLeave(department);
         return Ok(result);
     }
 

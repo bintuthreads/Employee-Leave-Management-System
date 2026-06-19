@@ -23,7 +23,7 @@ public interface ILeaveRepository
 
     Task<IEnumerable<LeaveRequestResponseDto>> GetLeavesByStatus(string status);
 
-    Task<List<Employee>> GetEmployeesCurrentlyOnLeave();
+    Task<List<Employee>> GetEmployeesCurrentlyOnLeave(string department);
 
     Task<object> GetLeaveStatistics();
 }

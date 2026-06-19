@@ -33,12 +33,11 @@ public class EmployeesController : ControllerBase
 
     
     //Create Employee
-    [HttpPost("Create-Employee")]
+    [HttpPost]
     public async Task<IActionResult> CreateEmployee(CreateEmployeeRequestDto dto)
     {
-        var result = await _employeeRepository.CreateEmployee(dto);
-
-        return Ok(result);
+        var employee = await _employeeRepository.CreateEmployee(dto);
+        return Ok(employee);
     }
     
     //Update Employee

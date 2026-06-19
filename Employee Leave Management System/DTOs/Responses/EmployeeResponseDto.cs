@@ -8,7 +8,7 @@ public class EmployeeResponseDto
 
     public string Email { get; set; }
 
-    public Department Department { get; set; }
+    public string Department { get; set; }
 
     public DateTime DateJoined { get; set; }
 }

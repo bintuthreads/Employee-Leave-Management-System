@@ -47,14 +47,18 @@ public class EmployeeRepository : IEmployeeRepository
     }
 
     //CREATE EMPLOYEE
-    public async Task<string> CreateEmployee(CreateEmployeeRequestDto dto)
+    public async Task<Employee> CreateEmployee(CreateEmployeeRequestDto dto)
     {
         var employeeExists = await _dbcontext.Employees
             .AnyAsync(e =>
                 e.FullName == dto.FullName ||
                 e.Email == dto.Email);
+
         if (employeeExists)
-            return "Employee with this name or email already exists";
+            throw new Exception("Employee already exists");
+
+        if (!Departments.ValidDepartments.Contains(dto.Department))
+            throw new Exception("Invalid department");
 
         var employee = new Employee
         {
@@ -67,7 +71,7 @@ public class EmployeeRepository : IEmployeeRepository
         await _dbcontext.Employees.AddAsync(employee);
         await _dbcontext.SaveChangesAsync();
 
-        return "Employee created successfully";
+        return employee;
     }
 
     // UPDATE EMPLOYEE

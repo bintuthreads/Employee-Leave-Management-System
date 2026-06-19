@@ -99,13 +99,17 @@ public class LeaveRepository : ILeaveRepository
                 if (days > 7)
                     return "Emergency leave cannot exceed 7 days";
                 break;
+            
+            case LeaveType.Study:
+                if (days > 120)
+                    return "Study leave cannot exceed 120 days";
+                break;
         }
 
         var overlap = await _dbContext.LeaveRequests.AnyAsync(l =>
             l.EmployeeId == dto.EmployeeId &&
             l.StartDate <= dto.EndDate &&
             l.EndDate >= dto.StartDate);
-
         if (overlap)
             return "Overlapping leave request exists";
 
@@ -122,9 +126,9 @@ public class LeaveRepository : ILeaveRepository
 
         await _dbContext.LeaveRequests.AddAsync(leave);
         await _dbContext.SaveChangesAsync();
-
         return "Leave submitted successfully";
     }
+    
     // UPDATE LEAVE
     public async Task<string> UpdateLeave(int id, SubmitLeaveRequestDto dto)
     {
@@ -232,14 +236,16 @@ public class LeaveRepository : ILeaveRepository
     }
 
     //GET EMPLOYEES CURRENTLY ON LEAVE
-    public async Task<List<Employee>> GetEmployeesCurrentlyOnLeave()
+    public async Task<List<Employee>> GetEmployeesCurrentlyOnLeave(string department)
     {
         var today = DateTime.UtcNow.Date;
 
         return await _dbContext.LeaveRequests
-            .Where(l => l.Status == "Approved"
-                        && l.StartDate <= today
-                        && l.EndDate >= today)
+            .Where(l =>
+                l.Status == "Approved" &&
+                l.StartDate <= today &&
+                l.EndDate >= today &&
+                l.Employee.Department == department)
             .Select(l => l.Employee)
             .ToListAsync();
     }
@@ -247,7 +253,19 @@ public class LeaveRepository : ILeaveRepository
     // Get Leave Statistics
     public async Task<object> GetLeaveStatistics()
     {
-        var stats = await _dbContext.LeaveRequests
+        var today = DateTime.UtcNow.Date;
+
+        // 1. OVERALL STATS
+        var totalEmployees = await _dbContext.Employees.CountAsync();
+        var totalLeaves = await _dbContext.LeaveRequests.CountAsync();
+        var currentlyOnLeave = await _dbContext.LeaveRequests
+            .CountAsync(l =>
+                l.Status == "Approved" &&
+                l.StartDate <= today &&
+                l.EndDate >= today);
+
+        // 2. DEPARTMENT BREAKDOWN
+        var byDepartment = await _dbContext.LeaveRequests
             .Include(l => l.Employee)
             .GroupBy(l => l.Employee.Department)
             .Select(g => new
@@ -260,6 +278,13 @@ public class LeaveRepository : ILeaveRepository
             })
             .ToListAsync();
 
-        return stats;
+        // 3. RETURN EVERYTHING
+        return new
+        {
+            totalEmployees,
+            totalLeaves,
+            currentlyOnLeave,
+            byDepartment
+        };
     }
 }

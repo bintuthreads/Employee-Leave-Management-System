@@ -6,5 +6,5 @@ public class UpdateEmployeeRequestDto
 
     public string Email { get; set; }
 
-    public Department Department { get; set; }
+    public string Department { get; set; }
 }

@@ -11,7 +11,7 @@ public interface IEmployeeRepository
 
     Task<EmployeeResponseDto?> GetEmployeeById(int id);
 
-    Task<string> CreateEmployee(CreateEmployeeRequestDto dto);
+    Task<Employee> CreateEmployee(CreateEmployeeRequestDto dto);
 
     Task<string> UpdateEmployee(int id, UpdateEmployeeRequestDto dto);
 
